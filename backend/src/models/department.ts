@@ -3,12 +3,14 @@ import mongoose, { Schema, Types } from "mongoose";
 export interface IDepartment {
   name: string;
   description: string;
+  active: boolean;
 }
 
 const departmentSchema = new Schema<IDepartment>(
   {
     name: { type: String, required: true, unique: true },
     description: String,
+    active: { type: Boolean, default: true },
   },
   {
     timestamps: true,

@@ -14,10 +14,11 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
-  passwordResetToken: string;
-  passwordResetExpires: string;
+  address: string;
   role: roles;
   department: Types.ObjectId;
+  passwordResetToken: string;
+  passwordResetExpires: string;
   createPasswordResetToken: () => {};
 }
 
@@ -27,6 +28,7 @@ const userSchema = new Schema<IUser>(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
+    address: { type: String, required: true },
     password: { type: String, required: true },
     active: { type: Boolean, default: true },
     role: {

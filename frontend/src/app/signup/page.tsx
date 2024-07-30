@@ -6,9 +6,8 @@ import Joi from 'joi';
 import { getAll } from 'employeer/src/api/department';
 import { registerUser } from 'employeer/src/api/user';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
-const roles = ["Employee","Manager"];
+export const roles = ["Employee","Manager"];
 
 export interface SignupFormInputs {
   firstName: string;
@@ -17,11 +16,13 @@ export interface SignupFormInputs {
   password: string;
   role: string;
   department: string;
+  address: string,
 }
 
 const schema = Joi.object({
   firstName: Joi.string().required().label('First Name'),
   lastName: Joi.string().required().label('Last Name'),
+  address: Joi.string().required().label('Address'),
   email: Joi.string().email({ tlds: { allow: false } }).required().label('Email'),
   password: Joi.string().min(6).required().label('Password'),
   role: Joi.string().required().label('Role'),
@@ -38,9 +39,6 @@ const Signup: React.FC = () => {
   const [departments, setDepartments] = useState([]);
   const [isLoading,setIsLoading] = useState(false)
 
-  console.log('errors',errors);
-  
-    
   useEffect(() => {
     (async () => {
       try {
@@ -67,7 +65,7 @@ const Signup: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Sign Up</h1>
+      <h1>Create User</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="formGroup">
           <label htmlFor="firstName">First Name</label>
@@ -85,6 +83,12 @@ const Signup: React.FC = () => {
           <label htmlFor="email">Email</label>
           <input id="email" type="email" {...register('email')} />
           {errors.email && <p className="error">{errors.email.message}</p>}
+        </div>
+      
+        <div className="formGroup">
+          <label htmlFor="address">Address</label>
+          <input id="address" type="address" {...register('address')} />
+          {errors.address && <p className="error">{errors.address.message}</p>}
         </div>
 
         <div className="formGroup">

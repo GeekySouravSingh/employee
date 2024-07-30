@@ -12,13 +12,14 @@ const DepartmentController = {
   },
 
   get: async (req: Request, res: Response) => {
-    const department = await Department.findOne(req.body);
+    const department = await Department.findById(req.params.id);
 
     res.status(STATUS_CODE.SUCCESS).json({ department });
   },
 
   getAll: async (req: Request, res: Response) => {
     const departments = await Department.find({});
+    console.log("departments", departments);
 
     res.status(STATUS_CODE.SUCCESS).json({ departments });
   },
