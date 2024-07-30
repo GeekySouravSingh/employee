@@ -5,13 +5,14 @@ import DepartmentController from "../controllers/department.controller";
 
 let department = express();
 
-// department.use(Protect);
-// department.use(IsAuthorize("admin", "manager"));
+department.use(Protect);
+department.use(IsAuthorize("admin", "Manager"));
 
+department.get("/getAll", DepartmentController.getAll);
 department.post("/create", DepartmentController.create);
 
 department.post("/update/:id", DepartmentController.update);
-department.get("/getAll", DepartmentController.getAll);
-department.get("/:id", DepartmentController.update);
+
+department.get("/:id", DepartmentController.get);
 
 export default department;

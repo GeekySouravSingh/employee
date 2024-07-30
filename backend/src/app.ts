@@ -14,6 +14,7 @@ const JWT_COOKIE_EXPIRES_IN = Number(process.env.JWT_COOKIE_EXPIRES_IN);
 dotenv.config();
 
 const app = express();
+app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
@@ -21,7 +22,7 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(morgan("tiny"));
 app.use(
   cookieSession({
     signed: false,

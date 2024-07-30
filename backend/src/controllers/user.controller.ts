@@ -14,7 +14,7 @@ export const createAndSendToken = async (
   const userInfo = {
     id: user.id,
     email: user.email,
-    role: user.role.name ?? "none",
+    role: user.role ?? "none",
     createdAt: user.createdAt,
   };
 
@@ -55,11 +55,10 @@ const UserController = {
     res.status(STATUS_CODE.SUCCESS).send({ message: "success" });
   },
 
-  // /v1/auth/signIn
   signIn: async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).populate("role");
+    const user = await User.findOne({ email }).populate("department");
 
     if (!user) {
       throw new BadRequest("Email or password is incorrect");
@@ -99,7 +98,6 @@ const UserController = {
     res.status(STATUS_CODE.NO_CONTENT).send({});
   },
 
-  // /v1/auth/signOut
   signOut: (req: Request, res: Response) => {
     req.session = null;
 
@@ -116,10 +114,87 @@ const UserController = {
       .send({ user: user ?? req?.currentUser ?? null });
   },
 
-  update: async (req: Request, res: Response) => {},
+  getAll: async (req: Request, res: Response) => {
+    try {
+      let { sortBy = "createdAt", sortType = "-1" } = req.query;
+
+      // Convert sortType to a number
+      const sortValue = sortType === "1" ? 1 : -1;
+
+      let sortField: Record<string, 1 | -1> = {};
+      if (sortBy === "name") {
+        sortField = { name: sortValue };
+      } else {
+        sortField = { [sortBy as string]: sortValue };
+      }
+
+      const users = await User.aggregate([
+        { $match: { active: true } },
+        {
+          $addFields: {
+            name: { $concat: ["$firstName", " ", "$lastName"] },
+          },
+        },
+        {
+          $sort: sortField,
+        },
+        {
+          $lookup: {
+            from: "Department",
+            localField: "department",
+            foreignField: "_id",
+            as: "department",
+          },
+        },
+        {
+          $unwind: "$department",
+        },
+        {
+          $project: {
+            _id: 0,
+            id: "$_id",
+            firstName: 1,
+            lastName: 1,
+            email: 1,
+            role: 1,
+            address: 1,
+            department: {
+              id: "$department._id",
+              name: "$department.name",
+            },
+          },
+        },
+      ]);
+
+      res.json({ users });
+    } catch (error: any) {
+      console.log(error.message);
+
+      res.status(500).send({ message: "An error occurred", error });
+    }
+  },
+
+  updateOne: async (req: Request, res: Response) => {
+    //we can sanitize data
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    }).populate("department");
+
+    res.status(STATUS_CODE.SUCCESS).send({ user });
+  },
 
   remove: async (req: Request, res: Response) => {
-    // await User.deleteOne("");
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        active: false,
+      },
+      {
+        new: true,
+      }
+    );
+
+    res.status(STATUS_CODE.SUCCESS).send({ user });
   },
 };
 
